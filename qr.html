@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التسجيل في دورة الأمن السيبراني - دبلوم</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #161b22;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid #30363d;
+        }
+        h1 { color: #58a6ff; }
+        .badge {
+            display: inline-block;
+            background: #1f6feb;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        .alert-box {
+            background: #da3633;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        video, canvas, img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 2px solid #f85149;
+        }
+        .hidden { display: none; }
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(35,134,54,0.4);
+            transition: 0.2s;
+        }
+        .btn:hover { background: #2ea043; }
+        .location-info {
+            background: #21262d;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px solid #30363d;
+            font-family: monospace;
+            color: #7ee787;
+            font-size: 15px;
+        }
+        .footer {
+            margin-top: 30px;
+            border-top: 1px solid #30363d;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- الواجهة الأولية -->
+        <div id="welcomeSection">
+            <span class="badge">مقاعد محدودة - لمتدربي مرحلة الدبلوم</span>
+            <h1>🛡️ دورة الأمن السيبراني المتقدمة (مجاناً)</h1>
+            <p>مبادرة تدريبية مجانية تشمل شهادة معتمدة وتطبيقات عملية في اختبار الاختراق والدفاع السيبراني.</p>
+            <p style="font-size: 14px; color: #8b949e;">لإثبات الحضور والتحقق من الهوية والموقع الجغرافي للمتدرب، يرجى السماح بالوصول عند الضغط أدناه:</p>
+            <button class="btn" onclick="startVerification()">التحقق وتأكيد المقعد المجاني</button>
+        </div>
+
+        <!-- واجهة الاختراق (لا تظهر إلا بعد قبول الكاميرا والموقع معاً) -->
+        <div id="attackSection" class="hidden">
+            <h1 style="color: #f85149;">⚠️ تحذير أمني خطير!</h1>
+            <div class="alert-box">تم اختراق هذا الجهاز بنجاح!</div>
+            <p>بصفتك متدرب أمن سيبراني، وقعت للتو في فخ الهندسة الاجتماعية! تم الوصول إلى الكاميرا وتحديد موقعك.</p>
+            
+            <!-- الكاميرا واللقطة والموقع تحتها -->
+            <div>
+                <video id="video" autoplay playsinline class="hidden"></video>
+                <canvas id="canvas" class="hidden"></canvas>
+                <div id="snapshotContainer"></div>
+                <div id="locationContainer" class="hidden"></div>
+            </div>
+
+            <div id="educationSection" class="hidden" style="margin-top: 30px; text-align: right; border-top: 1px solid #30363d; padding-top: 20px;">
+                <h3 style="color: #58a6ff;">💡 الدرس العملي الأول (لا تقلق، جهازك سليم!)</h3>
+                <p>ما حدث للتو هو <strong>محاكاة توعوية (Simulation)</strong> لهجمات التصيد عبر الـ QR Code (Quishing) والهندسة الاجتماعية.</p>
+                <ul>
+                    <li>المهاجمون يستغلون اهتماماتك (مثل الدورات المجانية أو الفرص التدريبية) لإقناعك بمنح صلاحيات حساسة دون تدقيق.</li>
+                    <li><strong>القاعدة الذهبية لمتخصص الأمن السيبراني:</strong> تحقق دائماً من النطاق (Domain) ولا تمنح صلاحية الكاميرا أو الموقع لأي رابط غير موثوق.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- التوقيع -->
+        <div class="footer">
+            تجهيز المهندس / عبدالله بن جريد
+        </div>
+    </div>
+
+    <script>
+        let alarmInterval;
+
+        // صوت الإنذار المستمر
+        function playOriginalAlarm() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            function beep(freq, time, delay) {
+                setTimeout(() => {
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + time);
+                }, delay);
+            }
+
+            function triggerBeeps() {
+                for (let i = 0; i < 3; i++) {
+                    beep(900, 0.3, i * 400);
+                    beep(1200, 0.3, (i * 400) + 200);
+                }
+            }
+
+            triggerBeeps();
+            alarmInterval = setInterval(triggerBeeps, 2500);
+        }
+
+        // دالة لطلب الموقع الجغرافي بشكل متوافق مع العودية (Promise)
+        function getGeoLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject("Geolocation not supported");
+                } else {
+                    navigator.geolocation.getCurrentPosition(resolve, reject);
+                }
+            });
+        }
+
+        async function startVerification() {
+            try {
+                // 1. طلب إذن الكاميرا أولاً والانتظار لحين الموافقة
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                
+                // 2. بعد الموافقة على الكاميرا، يتم طلب إذن الموقع الجغرافي والانتظار لحين الموافقة عليه أيضاً
+                const position = await getGeoLocation();
+                
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                // 3. بمجرد منح إذن الكاميرا والموقع بنجاح، يتم الانتقال لواجهة الاختراق وتشغيل الإنذار
+                document.getElementById('welcomeSection').classList.add('hidden');
+                document.getElementById('attackSection').classList.remove('hidden');
+                
+                // عرض إحداثيات الموقع تحت الصورة لاحقاً
+                document.getElementById('locationContainer').innerHTML = `
+                    <p style="color: #f85149; font-weight: bold; margin-top: 15px;">📍 موقعك الجغرافي المُكتشف:</p>
+                    <div class="location-info">خط العرض: ${lat.toFixed(5)}<br>خط الطول: ${lon.toFixed(5)}</div>
+                `;
+                document.getElementById('locationContainer').classList.remove('hidden');
+
+                // تشغيل صوت الإنذار المستمر
+                playOriginalAlarm();
+
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                
+                setTimeout(() => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.width = video.videoWidth || 320;
+                    canvas.height = video.videoHeight || 240;
+                    const context = canvas.getContext('2d');
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // إيقاف البث المباشر والاحتفاظ بالصورة الملتقطة
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    const dataUrl = canvas.toDataURL('image/png');
+                    document.getElementById('snapshotContainer').innerHTML = `
+                        <p style="color: #f85149; font-weight: bold; margin-top: 15px;">📸 صورة الكاميرا المُلتقطة الآن:</p>
+                        <img src="${dataUrl}" alt="لقطة كاميرا">
+                    `;
+                    
+                    document.getElementById('educationSection').classList.remove('hidden');
+                }, 1200);
+
+            } catch (err) {
+                // إذا رفض المستخدم إذن الكاميرا أو إذن الموقع، ستظهر رسالة التنبيه ولن يبدأ الإنذار أو يظهر الاختراق
+                alert("يجب السماح بالوصول إلى الكاميرا والموقع الجغرافي معاً لإتمام التحقق والتسجيل في الدورة!");
+            }
+        }
+    </script>
+</body>
+</html>
